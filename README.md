@@ -1,6 +1,6 @@
 #PyTrace
 
-## License
+## The 3-Clause BSD License
 
 Copyright <2022> <Erik Frandofer>
   
