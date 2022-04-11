@@ -11,10 +11,8 @@ def foo():
     raise Exception('generating exception')
 
 with start_tracing():
-    print("tu som")
     fib(4)
-    print("tu som")
-print("tu som")
+
 with start_tracing():
     try:
         foo()
