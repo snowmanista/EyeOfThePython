@@ -1,6 +1,17 @@
 import sys
 from contextlib import contextmanager
 
+def deleteLastLineJson():
+    fd = open("tracer_output.json", "r")
+    d = fd.read()
+    fd.close()
+    m = d.split("\n")
+    s = "\n".join(m[:-1])
+    fd = open("tracer_output.json", "w+")
+    for i in range(len(s)):
+        fd.write(s[i])
+    fd.close()
+
 class DefaultOutput:
     def __init__(self, counter):
         self.counter = counter
@@ -70,35 +81,9 @@ class JsonOutput:
             if self.counter==0:
                 #delete last line 3*
                 if self.counteroffunc != 1:
-                    fd = open("tracer_output.json", "r")
-                    d = fd.read()
-                    fd.close()
-                    m = d.split("\n")
-                    s = "\n".join(m[:-1])
-                    fd = open("tracer_output.json", "w+")
-                    for i in range(len(s)):
-                        fd.write(s[i])
-                    fd.close()
-                if self.counteroffunc != 1:
-                    fd = open("tracer_output.json", "r")
-                    d = fd.read()
-                    fd.close()
-                    m = d.split("\n")
-                    s = "\n".join(m[:-1])
-                    fd = open("tracer_output.json", "w+")
-                    for i in range(len(s)):
-                        fd.write(s[i])
-                    fd.close()
-                if self.counteroffunc != 1:
-                    fd = open("tracer_output.json", "r")
-                    d = fd.read()
-                    fd.close()
-                    m = d.split("\n")
-                    s = "\n".join(m[:-1])
-                    fd = open("tracer_output.json", "w+")
-                    for i in range(len(s)):
-                        fd.write(s[i])
-                    fd.close()
+                    deleteLastLineJson()
+                    deleteLastLineJson()
+                    deleteLastLineJson()
 
 
                 self.f = open("tracer_output.json", "a")
@@ -146,58 +131,6 @@ class JsonOutput:
 
     def exception(self, frame, func_name):
         self.f.write(f',\n\t\t\t{"{"}\"type\": \"exception\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{str(frame.f_locals)}\"{"]"}, \"line\": {frame.f_lineno}{"}"}')
-
-class XMLOutput:
-    def __init__(self, counter):
-        self.counter = counter
-        self.f = open("tracer_output.xml", "w")
-
-        def entry(self, separator, func_name, frame):
-            if (func_name != "__exit__" and func_name != "start_tracing"):
-                if self.counter == 0:
-                    self.f = open("tracer_output.xml", "a")
-                    self.f.write(f'{"{"}\n')
-                    self.f.write(f'\"output\": {"["}\n')
-                    self.f.write(f'{separator}{"{"}\n')
-
-                    self.f.write(f'{separator * 2}\"func\": "func{"("}{self.counteroffunc}{")"}\",\n')
-
-                    self.f.write(f'{separator * 2}\"name\": \"{sys.argv[0]}\",\n')
-                    self.f.write(f'{separator * 2}\"tracing\": {"["}\n')
-                    self.f.write(
-                        f'{separator * 3}{"{"}\"type\": \"-->\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{str(frame.f_locals)}\"{"]"}, \"line\": {frame.f_lineno}{"}"}')
-
-
-                else:
-                    self.f = open("tracer_output.json", "a")
-                    self.f.write(
-                        f',\n{separator * 3}{"{"}\"type\": \"-->\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{str(frame.f_locals)}\"{"]"}, \"line\": {frame.f_lineno}{"}"}')
-
-                    # self.f.write(f'{separator * self.counter}-->{func_name}({str(frame.f_locals)}) line: {frame.f_lineno}\n')
-                self.counter += 1
-
-        def exit(self, separator, func_name, frame, arg):
-            self.counter -= 1
-            self.f = open("tracer_output.json", "a")
-            if arg == None:
-                self.f.write(
-                    f',\n{separator * 3}{"{"}\"type\": \"<--\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{str(frame.f_locals)}\"{"]"},\"result\": \"None\", \"line\": {frame.f_lineno}{"}"}')
-            else:
-                self.f.write(
-                    f',\n{separator * 3}{"{"}\"type\": \"<--\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{str(frame.f_locals)}\"{"]"},\"result\": {arg}, \"line\": {frame.f_lineno}{"}"}')
-
-            if self.counter == 0:
-                self.counteroffunc += 1
-                self.f.write(f'\n{separator * 3}{"]"}')
-                self.f.write(f'\n{separator * 2}{"}"}')
-                self.f.write(f'\n{separator}{"]"}\n')
-                self.f.write(f'{"}"}\n')
-                self.f.close()
-
-        def exception(self, frame, func_name):
-            self.f.write(
-                f',\n\t\t\t{"{"}\"type\": \"exception\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{str(frame.f_locals)}\"{"]"}, \"line\": {frame.f_lineno}{"}"}')
-
 
 class bcolors:
     OK = '\033[92m' #GREEN
