@@ -1,4 +1,9 @@
 import sys
+
+import os
+
+import openpyxl
+from openpyxl.styles import Font
 from contextlib import contextmanager
 
 def deleteLastLineJson():
@@ -73,7 +78,7 @@ class JsonOutput:
     def __init__(self, counter):
         self.counter = counter
         self.f = open("tracer_output.json", "w")
-        self.counteroffunc = 1;
+        self.counteroffunc = 1
 
     def entry(self, separator, func_name, frame):
         if(func_name != "__exit__" and func_name != "start_tracing"):
@@ -132,6 +137,98 @@ class JsonOutput:
     def exception(self, frame, func_name):
         self.f.write(f',\n\t\t\t{"{"}\"type\": \"exception\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{str(frame.f_locals)}\"{"]"}, \"line\": {frame.f_lineno}{"}"}')
 
+class Excel:
+    def __init__(self, counter):
+        if os.path.exists("Pytrace.xlsx"):
+            os.remove("Pytrace.xlsx")
+
+        self.counter = counter
+        self.row = 1
+        self.column = 1
+
+        wb = openpyxl.Workbook()
+        sheet = wb.active
+
+        sheet.column_dimensions['A'].width = 17
+
+        sheet.cell(row=self.row, column=self.column).value = 'Name of function'
+        sheet.cell(row=self.row, column=self.column).font = Font(bold=True)
+        self.column += 1
+        sheet.cell(row=self.row, column=self.column).value = 'Type'
+        sheet.cell(row=self.row, column=self.column).font = Font(bold=True)
+        self.column += 1
+        sheet.cell(row=self.row, column=self.column).value = 'Variables'
+        sheet.cell(row=self.row, column=self.column).font = Font(bold=True)
+        self.column += 1
+        sheet.cell(row=self.row, column=self.column).value = 'Line'
+        sheet.cell(row=self.row, column=self.column).font = Font(bold=True)
+        self.column += 1
+        sheet.cell(row=self.row, column=self.column).value = 'Result'
+        sheet.cell(row=self.row, column=self.column).font = Font(bold=True)
+
+        wb.save("Pytrace.xlsx")
+        self.counteroffunc = 1
+
+    def entry(self, separator, func_name, frame):
+        if(func_name != "__exit__" and func_name != "start_tracing"):
+            self.row = self.row + 1
+            self.column = 1
+            wb = openpyxl.load_workbook("Pytrace.xlsx")
+            sheet = wb.active
+
+            sheet.cell(row=self.row, column=self.column).value = str(func_name)
+            self.column += 1
+            sheet.cell(row=self.row, column=self.column).value = 'Entrance'
+            self.column += 1
+            sheet.cell(row=self.row, column=self.column).value = str(frame.f_locals)
+            self.column += 1
+            sheet.cell(row=self.row, column=self.column).value = str(frame.f_lineno)
+
+            wb.save("Pytrace.xlsx")
+
+            self.counter += 1
+
+
+
+    def exit(self, separator, func_name, frame, arg):
+        self.row = self.row + 1
+        self.column = 1
+        wb = openpyxl.load_workbook("Pytrace.xlsx")
+        sheet = wb.active
+
+        sheet.cell(row=self.row, column=self.column).value = str(func_name)
+        self.column += 1
+        sheet.cell(row=self.row, column=self.column).value = 'Exit'
+        self.column += 1
+        sheet.cell(row=self.row, column=self.column).value = str(frame.f_locals)
+        self.column += 1
+        sheet.cell(row=self.row, column=self.column).value = str(frame.f_lineno)
+        self.column += 1
+
+        if arg == None:
+            sheet.cell(row=self.row, column=self.column).value = 'None'
+        else:
+            sheet.cell(row=self.row, column=self.column).value = str(arg)
+        wb.save("Pytrace.xlsx")
+        if self.counter == 0:
+            wb.save("Pytrace.xlsx")
+        self.counter -= 1
+
+    def exception(self, frame, func_name):
+        self.row = self.row + 1
+        self.column = 1
+        wb = openpyxl.load_workbook("Pytrace.xlsx")
+        sheet = wb.active
+
+        sheet.cell(row=self.row, column=self.column).value = str(func_name)
+        self.column += 1
+        sheet.cell(row=self.row, column=self.column).value = 'Excetion'
+        self.column += 1
+        sheet.cell(row=self.row, column=self.column).value = str(frame.f_locals)
+        self.column += 1
+        sheet.cell(row=self.row, column=self.column).value = str(frame.f_lineno)
+        wb.save("Pytrace.xlsx")
+
 class bcolors:
     OK = '\033[92m' #GREEN
     WARNING = '\033[93m' #YELLOW
@@ -168,4 +265,6 @@ def start_tracing():
     yield
     sys.settrace(get_trace)
 
-OUTPUT = JsonOutput(0)
+OUTPUT = Excel(0)
+#OUTPUT = ColorOutput(0)
+#OUTPUT = JsonOutput(0)
