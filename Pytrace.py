@@ -1,8 +1,7 @@
 import sys
-
 import os
-
 import openpyxl
+from cheap_repr import cheap_repr
 from openpyxl.styles import Font
 from contextlib import contextmanager
 
@@ -22,30 +21,30 @@ class DefaultOutput:
         self.counter = counter
 
     def entry(self, separator, func_name, frame):
-        print(f'{separator * self.counter}-->{func_name}({str(frame.f_locals)}) line: {frame.f_lineno}')
+        print(f'{separator * self.counter}-->{func_name}({cheap_repr(frame.f_locals)}) line: {frame.f_lineno}')
         self.counter += 1
 
     def exit(self, separator, func_name, frame, arg):
         self.counter -= 1
-        print(separator * self.counter, "<-- ", func_name, "(", str(frame.f_locals), ") res =", arg, "line: ",frame.f_lineno)
+        print(separator * self.counter, "<-- ", func_name, "(", cheap_repr(frame.f_locals), ") res =", cheap_repr(arg), "line: ",frame.f_lineno)
 
     def exception(self, frame, func_name):
-        print("Tracing exception on line ", frame.f_lineno, "of ", func_name, "(", str(frame.f_locals), ")")
+        print("Tracing exception on line ", frame.f_lineno, "of ", func_name, "(", cheap_repr(frame.f_locals), ")")
 
 class ColorOutput:
     def __init__(self, counter):
         self.counter = counter
 
     def entry(self, separator, func_name, frame):
-        print(f'{bcolors.OK}{separator * self.counter}-->{func_name}({str(frame.f_locals)}) line: {frame.f_lineno} {bcolors.RESET}')
+        print(f'{bcolors.OK}{separator * self.counter}-->{func_name}({cheap_repr(frame.f_locals)}) line: {frame.f_lineno} {bcolors.RESET}')
         self.counter += 1
 
     def exit(self, separator, func_name, frame, arg):
         self.counter -= 1
-        print(separator * self.counter, bcolors.WARNING + "<-- ", func_name, "(", str(frame.f_locals), ") res =", arg,"line: ", frame.f_lineno, bcolors.RESET)
+        print(separator * self.counter, bcolors.WARNING + "<-- ", func_name, "(", cheap_repr(frame.f_locals), ") res =", cheap_repr(arg),"line: ", frame.f_lineno, bcolors.RESET)
 
     def exception(self, frame, func_name):
-        print(bcolors.FAIL + "Tracing exception on line ", frame.f_lineno, "of ", func_name, "(", str(frame.f_locals), ")", bcolors.RESET)
+        print(bcolors.FAIL + "Tracing exception on line ", frame.f_lineno, "of ", func_name, "(", cheap_repr(frame.f_locals), ")", bcolors.RESET)
 
 class FileOutput:
 
@@ -56,22 +55,22 @@ class FileOutput:
     def entry(self, separator, func_name, frame):
         if self.counter==0:
             self.f = open("fib_output.txt", "a")
-            self.f.write(f'{separator * self.counter}-->{func_name}({str(frame.f_locals)}) line: {frame.f_lineno}\n')
+            self.f.write(f'{separator * self.counter}-->{func_name}({cheap_repr(frame.f_locals)}) line: {frame.f_lineno}\n')
         else:
             self.f = open("fib_output.txt", "a")
-            self.f.write(f'{separator * self.counter}-->{func_name}({str(frame.f_locals)}) line: {frame.f_lineno}\n')
+            self.f.write(f'{separator * self.counter}-->{func_name}({cheap_repr(frame.f_locals)}) line: {frame.f_lineno}\n')
         self.counter += 1
 
 
     def exit(self, separator, func_name, frame, arg):
         self.counter -= 1
         self.f = open("fib_output.txt", "a")
-        self.f.write(f'{separator * self.counter}<--{func_name}({str(frame.f_locals)}) res = {arg} line: {frame.f_lineno}\n')
+        self.f.write(f'{separator * self.counter}<--{func_name}({cheap_repr(frame.f_locals)}) res = {cheap_repr(arg)} line: {frame.f_lineno}\n')
         if self.counter==0:
             self.f.close()
 
     def exception(self, frame, func_name):
-        self.f.write(f'Tracing exception on line {frame.f_lineno} of {func_name}({str(frame.f_locals)})\n')
+        self.f.write(f'Tracing exception on line {frame.f_lineno} of {func_name}({cheap_repr(frame.f_locals)})\n')
 
 class JsonOutput:
 
@@ -106,12 +105,12 @@ class JsonOutput:
 
                 self.f.write(f'{separator * 2}\"name\": \"{sys.argv[0]}\",\n')
                 self.f.write(f'{separator * 2}\"tracing\": {"["}\n')
-                self.f.write(f'{separator * 3}{"{"}\"type\": \"-->\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{str(frame.f_locals)}\"{"]"}, \"line\": {frame.f_lineno}{"}"}')
+                self.f.write(f'{separator * 3}{"{"}\"type\": \"-->\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{cheap_repr(frame.f_locals)}\"{"]"}, \"line\": {frame.f_lineno}{"}"}')
 
 
             else:
                 self.f = open("tracer_output.json", "a")
-                self.f.write(f',\n{separator * 3}{"{"}\"type\": \"-->\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{str(frame.f_locals)}\"{"]"}, \"line\": {frame.f_lineno}{"}"}')
+                self.f.write(f',\n{separator * 3}{"{"}\"type\": \"-->\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{cheap_repr(frame.f_locals)}\"{"]"}, \"line\": {frame.f_lineno}{"}"}')
 
                 #self.f.write(f'{separator * self.counter}-->{func_name}({str(frame.f_locals)}) line: {frame.f_lineno}\n')
             self.counter += 1
@@ -122,9 +121,9 @@ class JsonOutput:
         self.f = open("tracer_output.json", "a")
         if arg == None:
             self.f.write(
-                f',\n{separator * 3}{"{"}\"type\": \"<--\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{str(frame.f_locals)}\"{"]"},\"result\": \"None\", \"line\": {frame.f_lineno}{"}"}')
+                f',\n{separator * 3}{"{"}\"type\": \"<--\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{cheap_repr(frame.f_locals)}\"{"]"},\"result\": \"None\", \"line\": {frame.f_lineno}{"}"}')
         else:
-            self.f.write(f',\n{separator * 3}{"{"}\"type\": \"<--\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{str(frame.f_locals)}\"{"]"},\"result\": {arg}, \"line\": {frame.f_lineno}{"}"}')
+            self.f.write(f',\n{separator * 3}{"{"}\"type\": \"<--\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{cheap_repr(frame.f_locals)}\"{"]"},\"result\": {cheap_repr(arg)}, \"line\": {frame.f_lineno}{"}"}')
 
         if self.counter==0:
             self.counteroffunc += 1
@@ -135,7 +134,7 @@ class JsonOutput:
             self.f.close()
 
     def exception(self, frame, func_name):
-        self.f.write(f',\n\t\t\t{"{"}\"type\": \"exception\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{str(frame.f_locals)}\"{"]"}, \"line\": {frame.f_lineno}{"}"}')
+        self.f.write(f',\n\t\t\t{"{"}\"type\": \"exception\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{cheap_repr(frame.f_locals)}\"{"]"}, \"line\": {frame.f_lineno}{"}"}')
 
 class Excel:
     def __init__(self, counter):
@@ -180,7 +179,7 @@ class Excel:
             self.column += 1
             sheet.cell(row=self.row, column=self.column).value = 'Entrance'
             self.column += 1
-            sheet.cell(row=self.row, column=self.column).value = str(frame.f_locals)
+            sheet.cell(row=self.row, column=self.column).value = cheap_repr(frame.f_locals)
             self.column += 1
             sheet.cell(row=self.row, column=self.column).value = str(frame.f_lineno)
 
@@ -200,7 +199,7 @@ class Excel:
         self.column += 1
         sheet.cell(row=self.row, column=self.column).value = 'Exit'
         self.column += 1
-        sheet.cell(row=self.row, column=self.column).value = str(frame.f_locals)
+        sheet.cell(row=self.row, column=self.column).value = cheap_repr(frame.f_locals)
         self.column += 1
         sheet.cell(row=self.row, column=self.column).value = str(frame.f_lineno)
         self.column += 1
@@ -208,7 +207,7 @@ class Excel:
         if arg == None:
             sheet.cell(row=self.row, column=self.column).value = 'None'
         else:
-            sheet.cell(row=self.row, column=self.column).value = str(arg)
+            sheet.cell(row=self.row, column=self.column).value = cheap_repr(arg)
         wb.save("Pytrace.xlsx")
         if self.counter == 0:
             wb.save("Pytrace.xlsx")
