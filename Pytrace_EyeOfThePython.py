@@ -264,6 +264,7 @@ def start_tracing():
     yield
     sys.settrace(get_trace)
 
-OUTPUT = Excel(0)
-#OUTPUT = ColorOutput(0)
-#OUTPUT = JsonOutput(0)
+OUTPUT = DefaultOutput(0)
+# OUTPUT = Excel(0)
+# OUTPUT = ColorOutput(0)
+# OUTPUT = JsonOutput(0)

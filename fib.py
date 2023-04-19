@@ -1,6 +1,6 @@
+import Pytrace_EyeOfThePython
 
-from Pytrace import start_tracing
-
+Pytrace_EyeOfThePython.OUTPUT = Pytrace_EyeOfThePython.ColorOutput(0)
 def fib(n):
    if n <= 1:
        return n
@@ -23,11 +23,11 @@ def f3():
 def foo():
     raise Exception('generating exception')
 
-with start_tracing():
+with Pytrace_EyeOfThePython.start_tracing():
     fib(4)
     #f1()
 
-with start_tracing():
+with Pytrace_EyeOfThePython.start_tracing():
     try:
         foo()
     except:
