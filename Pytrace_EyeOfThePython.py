@@ -50,21 +50,21 @@ class FileOutput:
 
     def __init__(self, counter):
         self.counter = counter
-        self.f = open("fib_output.txt", "w")
+        self.f = open("Pytrace_output.txt", "w")
 
     def entry(self, separator, func_name, frame):
         if self.counter==0:
-            self.f = open("fib_output.txt", "a")
+            self.f = open("Pytrace_output.txt", "a")
             self.f.write(f'{separator * self.counter}-->{func_name}({cheap_repr(frame.f_locals)}) line: {frame.f_lineno}\n')
         else:
-            self.f = open("fib_output.txt", "a")
+            self.f = open("Pytrace_output.txt", "a")
             self.f.write(f'{separator * self.counter}-->{func_name}({cheap_repr(frame.f_locals)}) line: {frame.f_lineno}\n')
         self.counter += 1
 
 
     def exit(self, separator, func_name, frame, arg):
         self.counter -= 1
-        self.f = open("fib_output.txt", "a")
+        self.f = open("Pytrace_output.txt", "a")
         self.f.write(f'{separator * self.counter}<--{func_name}({cheap_repr(frame.f_locals)}) res = {cheap_repr(arg)} line: {frame.f_lineno}\n')
         if self.counter==0:
             self.f.close()
@@ -136,7 +136,7 @@ class JsonOutput:
     def exception(self, frame, func_name):
         self.f.write(f',\n\t\t\t{"{"}\"type\": \"exception\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{cheap_repr(frame.f_locals)}\"{"]"}, \"line\": {frame.f_lineno}{"}"}')
 
-class Excel:
+class ExcelOutput:
     def __init__(self, counter):
         if os.path.exists("Pytrace.xlsx"):
             os.remove("Pytrace.xlsx")
@@ -153,7 +153,7 @@ class Excel:
         sheet.cell(row=self.row, column=self.column).value = 'Name of function'
         sheet.cell(row=self.row, column=self.column).font = Font(bold=True)
         self.column += 1
-        sheet.cell(row=self.row, column=self.column).value = 'Type'
+        sheet.cell(row=self.row, column=self.column).value = 'Event type'
         sheet.cell(row=self.row, column=self.column).font = Font(bold=True)
         self.column += 1
         sheet.cell(row=self.row, column=self.column).value = 'Variables'
@@ -265,6 +265,7 @@ def start_tracing():
     sys.settrace(get_trace)
 
 OUTPUT = DefaultOutput(0)
-# OUTPUT = Excel(0)
 # OUTPUT = ColorOutput(0)
+# OUTPUT = FileOutput(0)
+# OUTPUT = ExcelOutput(0)
 # OUTPUT = JsonOutput(0)
