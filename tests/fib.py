@@ -24,11 +24,11 @@ def f3():
 def foo():
     raise Exception('generating exception')
 
-with Pytrace_EyeOfThePython.start_tracing():
+with EyeOfThePython.start_tracing():
     fib(3)
     #f1()
 
-with Pytrace_EyeOfThePython.start_tracing():
+with EyeOfThePython.start_tracing():
     try:
         foo()
     except:
