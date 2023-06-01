@@ -6,6 +6,9 @@ from openpyxl.styles import Font
 from contextlib import contextmanager
 
 def deleteLastLineJson():
+    '''
+    helping function. function delete one line in json file
+    '''
     fd = open("tracer_output.json", "r")
     d = fd.read()
     fd.close()
@@ -17,42 +20,108 @@ def deleteLastLineJson():
     fd.close()
 
 class DefaultOutput:
+    '''
+    Default output format class.
+    '''
     def __init__(self, counter):
+        '''
+        init function.
+        initialization of variables
+        :param counter: number of tabs printed. at start = 0.
+        '''
         self.counter = counter
 
     def entry(self, separator, func_name, frame):
+        '''
+        print "call" function informations
+        :param separator: tab
+        :param func_name: name of function
+        :param frame: is the current stack frame.
+        '''
         print(f'{separator * self.counter}-->{func_name}({cheap_repr(frame.f_locals)}) line: {frame.f_lineno}')
         self.counter += 1
 
     def exit(self, separator, func_name, frame, arg):
+        '''
+        print "return" function informations
+        :param separator: tab
+        :param func_name: name of function
+        :param frame: is the current stack frame
+        :param arg: return value
+        '''
         self.counter -= 1
         print(separator * self.counter, "<-- ", func_name, "(", cheap_repr(frame.f_locals), ") res =", cheap_repr(arg), "line: ",frame.f_lineno)
 
     def exception(self, frame, func_name):
+        '''
+        print "exception" informations
+        :param func_name: name of function
+        :param frame: is the current stack frame
+        '''
         print("Tracing exception on line ", frame.f_lineno, "of ", func_name, "(", cheap_repr(frame.f_locals), ")")
 
 class ColorOutput:
+    '''
+    Color output format class.
+    '''
     def __init__(self, counter):
+        '''
+        init function.
+        initialization of variables
+        :param counter: number of tabs printed. at start = 0.
+        '''
         self.counter = counter
 
     def entry(self, separator, func_name, frame):
+        '''
+        print "call" function informations
+        :param separator: tab
+        :param func_name: name of function
+        :param frame: is the current stack frame.
+        '''
         print(f'{bcolors.OK}{separator * self.counter}-->{func_name}({cheap_repr(frame.f_locals)}) line: {frame.f_lineno} {bcolors.RESET}')
         self.counter += 1
 
     def exit(self, separator, func_name, frame, arg):
+        '''
+        print "return" function informations
+        :param separator: tab
+        :param func_name: name of function
+        :param frame: is the current stack frame
+        :param arg: return value
+        '''
         self.counter -= 1
         print(separator * self.counter, bcolors.WARNING + "<-- ", func_name, "(", cheap_repr(frame.f_locals), ") res =", cheap_repr(arg),"line: ", frame.f_lineno, bcolors.RESET)
 
     def exception(self, frame, func_name):
+        '''
+        print "exception" informations
+        :param func_name: name of function
+        :param frame: is the current stack frame
+        '''
         print(bcolors.FAIL + "Tracing exception on line ", frame.f_lineno, "of ", func_name, "(", cheap_repr(frame.f_locals), ")", bcolors.RESET)
 
 class FileOutput:
-
+    '''
+    output in to .txt file format class.
+    '''
     def __init__(self, counter):
+        '''
+        init function.
+        initialization of variables
+        open .txt file or create it if it doesn't exist
+        :param counter: number of tabs printed. at start = 0.
+        '''
         self.counter = counter
         self.f = open("Pytrace_output.txt", "w")
 
     def entry(self, separator, func_name, frame):
+        '''
+        print "call" function informations
+        :param separator: tab
+        :param func_name: name of function
+        :param frame: is the current stack frame.
+        '''
         if self.counter==0:
             self.f = open("Pytrace_output.txt", "a")
             self.f.write(f'{separator * self.counter}-->{func_name}({cheap_repr(frame.f_locals)}) line: {frame.f_lineno}\n')
@@ -63,6 +132,13 @@ class FileOutput:
 
 
     def exit(self, separator, func_name, frame, arg):
+        '''
+        print "return" function informations
+        :param separator: tab
+        :param func_name: name of function
+        :param frame: is the current stack frame
+        :param arg: return value
+        '''
         self.counter -= 1
         self.f = open("Pytrace_output.txt", "a")
         self.f.write(f'{separator * self.counter}<--{func_name}({cheap_repr(frame.f_locals)}) res = {cheap_repr(arg)} line: {frame.f_lineno}\n')
@@ -73,13 +149,27 @@ class FileOutput:
         self.f.write(f'Tracing exception on line {frame.f_lineno} of {func_name}({cheap_repr(frame.f_locals)})\n')
 
 class JsonOutput:
-
+    '''
+    Json output format class.
+    '''
     def __init__(self, counter):
+        '''
+        init function.
+        initialization of variables
+        open .json file or create it if it doesn't exist
+        :param counter: number of tabs printed. at start = 0.
+        '''
         self.counter = counter
         self.f = open("tracer_output.json", "w")
         self.counteroffunc = 1
 
     def entry(self, separator, func_name, frame):
+        '''
+        print "call" function informations
+        :param separator: tab
+        :param func_name: name of function
+        :param frame: is the current stack frame.
+        '''
         if(func_name != "__exit__" and func_name != "start_tracing"):
 
             if self.counter==0:
@@ -117,6 +207,13 @@ class JsonOutput:
 
 
     def exit(self, separator, func_name, frame, arg):
+        '''
+        print "return" function informations
+        :param separator: tab
+        :param func_name: name of function
+        :param frame: is the current stack frame
+        :param arg: return value
+        '''
         self.counter -= 1
         self.f = open("tracer_output.json", "a")
         if arg == None:
@@ -134,10 +231,25 @@ class JsonOutput:
             self.f.close()
 
     def exception(self, frame, func_name):
+        '''
+        print "exception" informations
+        :param func_name: name of function
+        :param frame: is the current stack frame
+        '''
         self.f.write(f',\n\t\t\t{"{"}\"type\": \"exception\", \"func_name\": \"{func_name}\", \"variables\": {"["}\"{cheap_repr(frame.f_locals)}\"{"]"}, \"line\": {frame.f_lineno}{"}"}')
 
 class ExcelOutput:
+    '''
+    output in to excel file format class.
+    '''
     def __init__(self, counter):
+        '''
+        init function.
+        initialization of variables
+        ctreate and open .xlsx file or remove it if it exist.
+        setup excel file.
+        :param counter: number of tabs printed. at start = 0.
+        '''
         if os.path.exists("Pytrace.xlsx"):
             os.remove("Pytrace.xlsx")
 
@@ -169,6 +281,12 @@ class ExcelOutput:
         self.counteroffunc = 1
 
     def entry(self, separator, func_name, frame):
+        '''
+        print "call" function informations
+        :param separator: tab
+        :param func_name: name of function
+        :param frame: is the current stack frame.
+        '''
         if(func_name != "__exit__" and func_name != "start_tracing"):
             self.row = self.row + 1
             self.column = 1
@@ -190,6 +308,13 @@ class ExcelOutput:
 
 
     def exit(self, separator, func_name, frame, arg):
+        '''
+        print "return" function informations
+        :param separator: tab
+        :param func_name: name of function
+        :param frame: is the current stack frame
+        :param arg: return value
+        '''
         self.row = self.row + 1
         self.column = 1
         wb = openpyxl.load_workbook("Pytrace.xlsx")
@@ -214,6 +339,11 @@ class ExcelOutput:
         self.counter -= 1
 
     def exception(self, frame, func_name):
+        '''
+        print "exception" informations
+        :param func_name: name of function
+        :param frame: is the current stack frame
+        '''
         self.row = self.row + 1
         self.column = 1
         wb = openpyxl.load_workbook("Pytrace.xlsx")
@@ -229,6 +359,9 @@ class ExcelOutput:
         wb.save("Pytrace.xlsx")
 
 class bcolors:
+    '''
+    set colors to variables
+    '''
     OK = '\033[92m' #GREEN
     WARNING = '\033[93m' #YELLOW
     FAIL = '\033[91m' #RED
@@ -236,6 +369,12 @@ class bcolors:
 
 
 def trace_calls_and_returns(frame, event, arg):
+    '''
+    tracing function
+    :param frame: frame is the current stack frame
+    :param event: (String)typ of tracing event (call, return or exception)
+    :param arg: depends on the event type. return value of return event or None.
+    '''
     co = frame.f_code
     func_name = co.co_name
     separator = '\t'
@@ -256,6 +395,10 @@ def trace_calls_and_returns(frame, event, arg):
 
 @contextmanager
 def start_tracing():
+    '''
+    function print info and start tracing calling sys.settrace() with argument
+    The argument is tracing function.
+    '''
     get_trace = sys.gettrace()
     print("This is the name of the script: ", sys.argv[0])
     print("Number of arguments: ", len(sys.argv))
