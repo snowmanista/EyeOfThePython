@@ -1,0 +1,13 @@
+Metadata-Version: 2.1
+Name: Pytrace-EyeOfThePython
+Version: 0.0.3
+Summary: Python tracing application
+Home-page: https://github.com/snowmanista/PyTrace
+Author: Erik Frandofer
+Author-email: erik.frandofer.365@gmail.com
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.6
+Description-Content-Type: text/markdown
+License-File: LICENSE

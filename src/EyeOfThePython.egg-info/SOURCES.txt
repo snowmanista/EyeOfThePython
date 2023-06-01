@@ -1,0 +1,10 @@
+LICENSE
+README.md
+pyproject.toml
+setup.cfg
+src/EyeOfThePython/Pytrace_EyeOfThePython.py
+src/EyeOfThePython/__init__.py
+src/Pytrace_EyeOfThePython.egg-info/PKG-INFO
+src/Pytrace_EyeOfThePython.egg-info/SOURCES.txt
+src/Pytrace_EyeOfThePython.egg-info/dependency_links.txt
+src/Pytrace_EyeOfThePython.egg-info/top_level.txt

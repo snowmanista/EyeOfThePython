@@ -1,4 +1,5 @@
-import Pytrace_EyeOfThePython
+from src.EyeOfThePython import EyeOfThePython
+
 
 # Pytrace_EyeOfThePython.OUTPUT = Pytrace_EyeOfThePython.ColorOutput(0)
 def fib(n):

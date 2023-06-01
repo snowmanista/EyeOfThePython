@@ -1,0 +1,12 @@
+[build-system]
+requires = [
+    "setuptools >= 42",
+    "wheel",
+    "sys",
+    "os",
+    "openpyxl",
+    "cheap_repr",
+    "openpyxl.styles",
+    "contextlib",
+]
+build-backend = "setuptools.build_meta"
